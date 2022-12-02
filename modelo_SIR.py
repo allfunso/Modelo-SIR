@@ -1,23 +1,31 @@
 import numpy as np
 import matplotlib.pyplot as plt
- 
-s_0 = 999999
+
+n = 1000000 # Población total
+
+v_0 = 0 # Proporción de la población inicialmente vacunada
+
+#### Valores iniciales ####
+s_0 = (n - 1) * (1 - v_0) 
 i_0 = 1
-r_0 = 0
+r_0 = (n - 1) * v_0
 t_0 = 0
 
 h = 1
 contador = 1
 
+#### Parámetros ####
 beta = float(input("Beta: "))
 gamma = float(input("Gamma: "))
 
 b = 1/(70*365) # Natalidad
 mu = 1/(70*365) # Mortalidad
 
-v = 0 # Vacunados (por día)
-
 r0 = beta/gamma
+
+#### Campaña de vacunación ####
+v = 0 # Proporción de vacunados (por día)
+
 
 print("---- Sistema de ecuaciones diferenciales del modelo SIR ----")
 
@@ -32,15 +40,15 @@ def funcionr(t,s,i,r):
 
 
 def reff(s):
-    return r_0/n * s
+    return r0/n * s
 
-interval = int(input("Interval: [days] "))
+iterations = int(input("Iteraciones: "))
 
 s = [s_0]
 i = [i_0]
 r = [r_0]
 
-while(contador <= interval):
+while(contador <= iterations):
     n = s_0 + i_0 + r_0 # Actualizar población total
 
     k_1 = funcions(t_0,s_0,i_0,r_0)
@@ -74,7 +82,8 @@ while(contador <= interval):
     print("\tpersonas recuperadas:",r_0)
 
 
-t = np.linspace(0, t_0, interval + 1)
+#### Gráfico ####
+t = np.linspace(0, t_0, iterations + 1)
 
 plt.plot(t, s,'r--', linewidth=2.0)
 plt.plot(t, i,'b-', linewidth=2.0)
@@ -83,3 +92,4 @@ plt.xlabel("t")
 plt.ylabel("Modelo SIR")
 plt.legend(["S","I","R"])
 plt.show()
+
