@@ -1,30 +1,48 @@
-
 import numpy as np
+import matplotlib.pyplot as plt
  
 s_0 = 999999
 i_0 = 1
 r_0 = 0
 t_0 = 0
+
 h = 1
 contador = 1
+
 beta = float(input("Beta: "))
 gamma = float(input("Gamma: "))
-N = 1000000
 
-print("Sistema de ecs diferenciales del modelo SIR")
+b = 1/(70*365) # Natalidad
+mu = 1/(70*365) # Mortalidad
+
+v = 0 # Vacunados (por día)
+
+r0 = beta/gamma
+
+print("---- Sistema de ecuaciones diferenciales del modelo SIR ----")
 
 def funcions(t,s,i,r):
-    return (-beta/N)*s*i
+    return (-beta/n)*s*i + b*n - mu*s - v*s
 
 def funcioni(t,s,i,r):
-    return (beta/N)*s*i-gamma*i
+    return (beta/n)*s*i - gamma*i - mu*i
 
-def funcionr(t, s,i,r):
-    return gamma*i
+def funcionr(t,s,i,r):
+    return gamma*i - mu*r + v*s
+
+
+def reff(s):
+    return r_0/n * s
 
 interval = int(input("Interval: [days] "))
 
-while(contador<=interval):
+s = [s_0]
+i = [i_0]
+r = [r_0]
+
+while(contador <= interval):
+    n = s_0 + i_0 + r_0 # Actualizar población total
+
     k_1 = funcions(t_0,s_0,i_0,r_0)
     m_1 = funcioni(t_0,s_0,i_0,r_0)
     l_1 = funcionr(t_0,s_0,i_0,r_0)
@@ -45,34 +63,22 @@ while(contador<=interval):
     i_0 = i_0 + (h/6)*(m_1+2*m_2+2*m_3+m_4)
     r_0 = r_0 + (h/6)*(l_1+2*l_2+2*l_3+l_4)
 
+    s.append(s_0)
+    i.append(i_0)
+    r.append(r_0)
+
     t_0 = t_0 + h
-    contador = contador+1
-    print("día :", t_0, "personas susceptibles:",s_0)
-    print("día :",t_0, "personas infectados:",i_0)
-    print("día: ", t_0, "personas recuperados:",r_0)
-
-import numpy as np
-from scipy.integrate import odeint
-import matplotlib.pyplot as plt
+    contador = contador + 1
+    print("día:", t_0, "\n\tpersonas susceptibles:", s_0)
+    print("\tpersonas infectadas:", i_0)
+    print("\tpersonas recuperadas:",r_0)
 
 
-def f(s,t):
-  n = s[0]
-  c = s[1]
-  j = s[2]
-  dsdt = (-beta/N)*n*c
-  didt = (beta/N)*n*c-gamma*c
-  drdt = gamma*c
-  return [dsdt, didt,drdt]
+t = np.linspace(0, t_0, interval + 1)
 
-t = np.linspace(0,interval)
-s0=[999999,1,0]
-
-s = odeint(f,s0,t)
-
-plt.plot(t,s[:,0],'r--', linewidth=2.0)
-plt.plot(t,s[:,1],'b-', linewidth=2.0)
-plt.plot(t,s[:,2],'g-', linewidth=2.0)
+plt.plot(t, s,'r--', linewidth=2.0)
+plt.plot(t, i,'b-', linewidth=2.0)
+plt.plot(t, r,'g-', linewidth=2.0)
 plt.xlabel("t")
 plt.ylabel("Modelo SIR")
 plt.legend(["S","I","R"])
